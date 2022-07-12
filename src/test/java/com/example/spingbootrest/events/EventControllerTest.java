@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -29,6 +31,12 @@ public class EventControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
+
+    /*@TestConfiguration
+    void beenConfiguration(){
+
+    }*/
+
     /**
      * HTTP Status code 201로 성공하는지 확인
      * @throws Exception
@@ -49,15 +57,15 @@ public class EventControllerTest {
                 .location("강남역 D2 스타텁 팩토리")
                 .build();
 
-
         mockMvc.perform(post("/api/events/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
                         .content(objectMapper.writeValueAsString(event)))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("id").exists());
-
+                .andExpect(jsonPath("id").exists())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE));
     }
 
 
