@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * 연관관계가 있는 오브젝트를 피하여 상호 참조가 발생하는 것을 피한다.
  */
 @Builder @AllArgsConstructor @NoArgsConstructor
-@Getter @Setter @EqualsAndHashCode(of = "id")
+@Getter @Setter
 @Entity
 public class Event {
 
@@ -31,6 +31,7 @@ public class Event {
     private int limitOfEnrollment;
     private boolean offline;
     private boolean free;
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
 
