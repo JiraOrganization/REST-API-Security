@@ -1,6 +1,5 @@
 package com.example.spingbootrest.events;
 
-import org.hibernate.annotations.Comment;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
@@ -9,11 +8,13 @@ import java.time.LocalDateTime;
 @Component
 public class EventValidator {
 
-
     public void validate(EventDto eventDto, Errors errors){
-        if (eventDto.getBasePrice() > eventDto.getMaxPrice() && eventDto.getMaxPrice() != 0){
+        if (eventDto.getBasePrice() > eventDto.getMaxPrice()){
             errors.rejectValue("basePrice", "wrongValue", "BasePrice is wrong");
-            errors.rejectValue("maxPrice", "wrongValue", "MaxPrice is wrong");
+        }
+
+        if (eventDto.getBasePrice() > eventDto.getMaxPrice() && eventDto.getMaxPrice() != 0){
+            errors.reject("wrongPrices", "Values for prices are wrong");
         }
 
         LocalDateTime endEventDateTime = eventDto.getEndEventDateTime();
