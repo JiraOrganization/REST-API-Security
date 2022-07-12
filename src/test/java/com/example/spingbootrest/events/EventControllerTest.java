@@ -20,8 +20,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+//@ExtendWith(SpringExtension.class)
+@SpringBootTest //(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 public class EventControllerTest {
 
