@@ -3,6 +3,7 @@ package com.example.spingbootrest.events;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -33,7 +34,7 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors){
+    public ResponseEntity<?> createEvent(@RequestBody @Valid EventDto eventDto, Errors errors){
         if (errors.hasErrors())
             return ResponseEntity.badRequest().build();
 
@@ -45,8 +46,14 @@ public class EventController {
         Event event = modelMapper.map(eventDto, Event.class);
         event.update();
         Event newEvent = eventRepository.save(event);
-        URI createdUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
-        return ResponseEntity.created(createdUri).body(event);
+        WebMvcLinkBuilder webMvcLinkBuilder = linkTo(EventController.class).slash(newEvent.getId());
+        URI createdUri = webMvcLinkBuilder.toUri();
+
+        EventModel eventModel = new EventModel(event);
+
+        eventModel.add(linkTo(EventController.class).withRel("query-events"));
+        eventModel.add(webMvcLinkBuilder.withRel("update-events"));
+        return ResponseEntity.created(createdUri).body(eventModel);
     }
 
 
