@@ -97,7 +97,7 @@ class EventControllerTest {
                 .andExpect(jsonPath("_links.query-events").exists())
                 .andExpect(jsonPath("_links.update-events").exists())
         // .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("create-evnet",
+                .andDo(document("create-event",
                         links(halLinks(),
                                 linkWithRel("self").description("Link to self"),
                                 linkWithRel("query-events").description("Link to query-events"),
@@ -109,8 +109,8 @@ class EventControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
                         ),
                         requestFields(
-                                fieldWithPath("name").description("Name of new evnet"),
-                                fieldWithPath("description").description("description of new evnet"),
+                                fieldWithPath("name").description("Name of new event"),
+                                fieldWithPath("description").description("description of new event"),
                                 fieldWithPath("beginEnrollmentDateTime").description("date time of beginEnrollmentDateTime"),
                                 fieldWithPath("closeEnrollmentDateTime").description("date time of closeEnrollmentDateTime"),
                                 fieldWithPath("beginEventDateTime").description("date time of beginEventDateTime"),
@@ -118,19 +118,19 @@ class EventControllerTest {
                                 fieldWithPath("location").description("location of new event"),
                                 fieldWithPath("basePrice").description("basePrice of new event"),
                                 fieldWithPath("maxPrice").description("maxPrice of new event"),
-                                fieldWithPath("limitOfEnrollment").description("limitOfEnrollment of new evnet")
+                                fieldWithPath("limitOfEnrollment").description("limitOfEnrollment of new event")
                         ),
 
                         responseHeaders(
-                                headerWithName(HttpHeaders.LOCATION).description("location hearder"),
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("content type hearder")
+                                headerWithName(HttpHeaders.LOCATION).description("location header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
 
                         ),
 
-                        responseFields( //responseFields은 모든 필드를 무조건 정의 해야한다.
-                                fieldWithPath("id").description("id of new evnet"),
-                                fieldWithPath("name").description("Name of new evnet"),
-                                fieldWithPath("description").description("description of new evnet"),
+                        responseFields(
+                                fieldWithPath("id").description("id of new event"),
+                                fieldWithPath("name").description("Name of new event"),
+                                fieldWithPath("description").description("description of new event"),
                                 fieldWithPath("beginEnrollmentDateTime").description("date time of beginEnrollmentDateTime"),
                                 fieldWithPath("closeEnrollmentDateTime").description("date time of closeEnrollmentDateTime"),
                                 fieldWithPath("beginEventDateTime").description("date time of beginEventDateTime"),
@@ -138,9 +138,9 @@ class EventControllerTest {
                                 fieldWithPath("location").description("location of new event"),
                                 fieldWithPath("basePrice").description("basePrice of new event"),
                                 fieldWithPath("maxPrice").description("maxPrice of new event"),
-                                fieldWithPath("limitOfEnrollment").description("limitOfEnrollment of new evnet"),
+                                fieldWithPath("limitOfEnrollment").description("limitOfEnrollment of new event"),
                                 fieldWithPath("free").description("it tells if this event is free of not"),
-                                fieldWithPath("offline").description("it tells if this event is offline evnet of not"),
+                                fieldWithPath("offline").description("it tells if this event is offline event of not"),
                                 fieldWithPath("eventStatus").description("it tells if this event is status"),
                                 fieldWithPath("_links.self.href").description("Link to self"),
                                 fieldWithPath("_links.query-events.href").description("Link to update event list"),
@@ -186,7 +186,7 @@ class EventControllerTest {
 
 
     @Test @DisplayName("입력 값이 없는 이벤트 생성 테스트")
-    void ctrateEvent_Bad_Request_Empty_Input() throws Exception {
+    void createEvent_Bad_Request_Empty_Input() throws Exception {
         EventDto event = EventDto.builder().build();
 
         mockMvc.perform(post("/api/events/")
