@@ -2,6 +2,7 @@ package com.example.spingbootrest.events;
 
 
 import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +54,7 @@ public class EventController {
 
         eventModel.add(linkTo(EventController.class).withRel("query-events"));
         eventModel.add(webMvcLinkBuilder.withRel("update-events"));
+        eventModel.add(Link.of("/docs/index.html#resources-events-create").withRel("profile"));
         return ResponseEntity.created(createdUri).body(eventModel);
     }
 
