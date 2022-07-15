@@ -1,15 +1,18 @@
 package com.example.spingbootrest.events;
 
 
-import com.example.spingbootrest.common.ErrorsResource;
+import com.example.spingbootrest.common.ErrorsModel;
 import org.modelmapper.ModelMapper;
-import org.springframework.hateoas.EntityModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,10 +45,9 @@ public class EventController {
             return badRequest(errors);
 
         eventValidator.validate(eventDto,errors);
-        if (errors.hasErrors()) {
-            ResponseEntity responseEntity = badRequest(errors);
-            return responseEntity;
-        }
+        if (errors.hasErrors())
+            return badRequest(errors);
+
 
 
         Event event = modelMapper.map(eventDto, Event.class);
@@ -62,10 +64,18 @@ public class EventController {
         return ResponseEntity.created(createdUri).body(eventModel);
     }
 
-    private ResponseEntity badRequest(Errors errors) {
 
-        ErrorsResource body = new ErrorsResource(errors);
-        return ResponseEntity.badRequest().body(body);
+    @GetMapping
+    public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler){
+        Page<Event> page = this.eventRepository.findAll(pageable);
+        var pagedModel = assembler.toModel(page, e -> new EventModel(e));
+        pagedModel.add(Link.of("/docs/index.html#resources-events-list").withRel("profile"));
+        return ResponseEntity.ok(pagedModel);
+    }
+
+
+    private ResponseEntity badRequest(Errors errors) {
+        return ResponseEntity.badRequest().body(new ErrorsModel(errors));
     }
 
 
