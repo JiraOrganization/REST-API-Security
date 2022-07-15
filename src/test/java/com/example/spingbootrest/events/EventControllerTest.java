@@ -294,13 +294,13 @@ class EventControllerTest {
     void queryEvents() throws Exception {
         //Given
         IntStream.range(0,30).forEach(i -> this.generateEvent(i));
-
         //When
         this.mockMvc.perform(get("/api/events")
                         .param("page", "1")
                         .param("size", "10")
                         .param("sort", "id,DESC")
-
+                        .contentType(MediaTypes.HAL_JSON)
+                        .accept(MediaTypes.HAL_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -308,22 +308,72 @@ class EventControllerTest {
                 .andExpect(jsonPath("_embedded.eventList[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("query-events")
-                //Todo Query Events 문서화 구현 필요
-                )
-        ;
+                .andDo(document("query-events",
+                        //Todo Query Events 문서화 구현 중
+                                links(
+                                        linkWithRel("self").description("Link to self"),
+                                        linkWithRel("profile").description("Link to profile"),
+                                        linkWithRel("next").description("다음 페이지 URI"),
+                                        linkWithRel("first").description("첫페이지 URI"),
+                                        linkWithRel("prev").description("이전 페이지 URI"),
+                                        linkWithRel("last").description("마지막 페이지 URI")
+                                ),
+                                requestHeaders(
+                                        headerWithName(HttpHeaders.ACCEPT).description("accept header"),
+                                        headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
+                                ))
+
+                );
 
     }
 
-    private void generateEvent(int index) {
+    private Event generateEvent(int index) {
         Event event = Event.builder()
                 .name("event_"+index)
                 .description("test description"+index)
                 .build();
 
-        this.eventRepository.save(event);
+        return this.eventRepository.save(event);
     }
 
+
+
+
+    @Test
+    @DisplayName("기존의 이벤트 하나 조회하기")
+    void getEvent() throws Exception {
+        //Given
+        Event event = this.generateEvent(100);
+
+        //Then
+        this.mockMvc.perform(get("/api/events/{id}", event.getId())
+                        .contentType(MediaTypes.HAL_JSON)
+                        .accept(MediaTypes.HAL_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("name").exists())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(print())
+                .andDo(document("get-an-event")
+                //Todo 단일 이벤트 조회 문서화 구현 필요
+                );
+
+
+
+
+        //When
+
+    }
+
+    @Test @DisplayName("없는 이벤트 조회하여 404 응답 받기")
+    void getEvent404() throws Exception {
+    //When & Then
+        this.mockMvc.perform(get("/api/events/4894984")
+                        .contentType(MediaTypes.HAL_JSON)
+                        .accept(MediaTypes.HAL_JSON))
+                .andExpect(status().isNotFound());
+    }
 
 
 }
