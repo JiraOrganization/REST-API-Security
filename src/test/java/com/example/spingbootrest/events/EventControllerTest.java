@@ -1,6 +1,5 @@
 package com.example.spingbootrest.events;
 
-import com.example.spingbootrest.common.RestDocsConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,12 +10,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -26,7 +25,8 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
-import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.*;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
@@ -37,7 +37,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
-@Import(RestDocsConfiguration.class)
+@ActiveProfiles("test")
+//@Import(RestDocsConfiguration.class)
+//@AutoConfigureMockMvc
+//@AutoConfigureRestDocs(outputDir = "target/snippets")
 class EventControllerTest {
     @Autowired
     private WebApplicationContext context;
@@ -93,15 +96,12 @@ class EventControllerTest {
                 .andExpect(jsonPath("id").value(Matchers.not(100)))
                 .andExpect(jsonPath("free").value(Matchers.not(true)))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
-                .andExpect(jsonPath("_links.self").exists())
-                .andExpect(jsonPath("_links.query-events").exists())
-                .andExpect(jsonPath("_links.update-events").exists())
         // .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("create-event",
-                        links(halLinks(),
+                        links(
                                 linkWithRel("self").description("Link to self"),
                                 linkWithRel("query-events").description("Link to query-events"),
-                                //linkWithRel("profile").description("Link to profile")
+                                linkWithRel("profile").description("Link to profile"),
                                 linkWithRel("update-events").description("Link to update an existing event")
                         ),
                         requestHeaders(
@@ -144,6 +144,7 @@ class EventControllerTest {
                                 fieldWithPath("eventStatus").description("it tells if this event is status"),
                                 fieldWithPath("_links.self.href").description("Link to self"),
                                 fieldWithPath("_links.query-events.href").description("Link to update event list"),
+                                fieldWithPath("_links.profile.href").description("Link to profile"),
                                 fieldWithPath("_links.update-events.href").description("Link to update existing events")
                         )
                 ))
