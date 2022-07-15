@@ -1,7 +1,9 @@
 package com.example.spingbootrest.events;
 
 
+import com.example.spingbootrest.common.ErrorsResource;
 import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
@@ -35,13 +37,15 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createEvent(@RequestBody @Valid EventDto eventDto, Errors errors){
+    public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors){
         if (errors.hasErrors())
-            return ResponseEntity.badRequest().build();
+            return badRequest(errors);
 
         eventValidator.validate(eventDto,errors);
-        if (errors.hasErrors())
-            return ResponseEntity.badRequest().body(errors);
+        if (errors.hasErrors()) {
+            ResponseEntity responseEntity = badRequest(errors);
+            return responseEntity;
+        }
 
 
         Event event = modelMapper.map(eventDto, Event.class);
@@ -56,6 +60,12 @@ public class EventController {
         eventModel.add(webMvcLinkBuilder.withRel("update-events"));
         eventModel.add(Link.of("/docs/index.html#resources-events-create").withRel("profile"));
         return ResponseEntity.created(createdUri).body(eventModel);
+    }
+
+    private ResponseEntity badRequest(Errors errors) {
+
+        ErrorsResource body = new ErrorsResource(errors);
+        return ResponseEntity.badRequest().body(body);
     }
 
 

@@ -48,6 +48,7 @@ class EventControllerTest {
     //@Autowired
     MockMvc mockMvc;
 
+
     @Autowired
     ObjectMapper objectMapper;
 
@@ -147,13 +148,9 @@ class EventControllerTest {
                                 fieldWithPath("_links.profile.href").description("Link to profile"),
                                 fieldWithPath("_links.update-events.href").description("Link to update existing events")
                         )
-                ))
-
-
-        ;
-
-
+                ));
     }
+
 
     @Test @DisplayName("입력값이 잘못된 이벤트 생성 경우의 테스트")
     void createEvent_Bad_Request_Wrong_Input() throws Exception {
@@ -177,11 +174,14 @@ class EventControllerTest {
                         .content(objectMapper.writeValueAsString(eventDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$[0].objectName").exists())
-                .andExpect(jsonPath("$[0].field").exists())
-                .andExpect(jsonPath("$[0].defaultMessage").exists())
-                .andExpect(jsonPath("$[0].rejectedValue").exists())
-        ;
+                .andExpect(jsonPath("errors[0].objectName").exists())
+                .andExpect(jsonPath("errors[0].field").exists())
+                .andExpect(jsonPath("errors[0].defaultMessage").exists())
+                .andExpect(jsonPath("errors[0].rejectedValue").exists())
+                .andExpect(jsonPath("_links.index").exists()
+
+
+                );
 
     }
 
