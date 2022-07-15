@@ -1,6 +1,5 @@
 package com.example.spingbootrest.events;
 
-import com.example.spingbootrest.common.RestDocsConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,12 +10,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -26,7 +25,8 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
-import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.*;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
@@ -37,13 +37,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
-@Import(RestDocsConfiguration.class)
+@ActiveProfiles("test")
+//@Import(RestDocsConfiguration.class)
+//@AutoConfigureMockMvc
+//@AutoConfigureRestDocs(outputDir = "target/snippets")
 class EventControllerTest {
     @Autowired
     private WebApplicationContext context;
 
     //@Autowired
     MockMvc mockMvc;
+
 
     @Autowired
     ObjectMapper objectMapper;
@@ -93,15 +97,12 @@ class EventControllerTest {
                 .andExpect(jsonPath("id").value(Matchers.not(100)))
                 .andExpect(jsonPath("free").value(Matchers.not(true)))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
-                .andExpect(jsonPath("_links.self").exists())
-                .andExpect(jsonPath("_links.query-events").exists())
-                .andExpect(jsonPath("_links.update-events").exists())
         // .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("create-evnet",
-                        links(halLinks(),
+                .andDo(document("create-event",
+                        links(
                                 linkWithRel("self").description("Link to self"),
                                 linkWithRel("query-events").description("Link to query-events"),
-                                //linkWithRel("profile").description("Link to profile")
+                                linkWithRel("profile").description("Link to profile"),
                                 linkWithRel("update-events").description("Link to update an existing event")
                         ),
                         requestHeaders(
@@ -109,8 +110,8 @@ class EventControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
                         ),
                         requestFields(
-                                fieldWithPath("name").description("Name of new evnet"),
-                                fieldWithPath("description").description("description of new evnet"),
+                                fieldWithPath("name").description("Name of new event"),
+                                fieldWithPath("description").description("description of new event"),
                                 fieldWithPath("beginEnrollmentDateTime").description("date time of beginEnrollmentDateTime"),
                                 fieldWithPath("closeEnrollmentDateTime").description("date time of closeEnrollmentDateTime"),
                                 fieldWithPath("beginEventDateTime").description("date time of beginEventDateTime"),
@@ -118,19 +119,19 @@ class EventControllerTest {
                                 fieldWithPath("location").description("location of new event"),
                                 fieldWithPath("basePrice").description("basePrice of new event"),
                                 fieldWithPath("maxPrice").description("maxPrice of new event"),
-                                fieldWithPath("limitOfEnrollment").description("limitOfEnrollment of new evnet")
+                                fieldWithPath("limitOfEnrollment").description("limitOfEnrollment of new event")
                         ),
 
                         responseHeaders(
-                                headerWithName(HttpHeaders.LOCATION).description("location hearder"),
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("content type hearder")
+                                headerWithName(HttpHeaders.LOCATION).description("location header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
 
                         ),
 
-                        responseFields( //responseFields은 모든 필드를 무조건 정의 해야한다.
-                                fieldWithPath("id").description("id of new evnet"),
-                                fieldWithPath("name").description("Name of new evnet"),
-                                fieldWithPath("description").description("description of new evnet"),
+                        responseFields(
+                                fieldWithPath("id").description("id of new event"),
+                                fieldWithPath("name").description("Name of new event"),
+                                fieldWithPath("description").description("description of new event"),
                                 fieldWithPath("beginEnrollmentDateTime").description("date time of beginEnrollmentDateTime"),
                                 fieldWithPath("closeEnrollmentDateTime").description("date time of closeEnrollmentDateTime"),
                                 fieldWithPath("beginEventDateTime").description("date time of beginEventDateTime"),
@@ -138,21 +139,18 @@ class EventControllerTest {
                                 fieldWithPath("location").description("location of new event"),
                                 fieldWithPath("basePrice").description("basePrice of new event"),
                                 fieldWithPath("maxPrice").description("maxPrice of new event"),
-                                fieldWithPath("limitOfEnrollment").description("limitOfEnrollment of new evnet"),
+                                fieldWithPath("limitOfEnrollment").description("limitOfEnrollment of new event"),
                                 fieldWithPath("free").description("it tells if this event is free of not"),
-                                fieldWithPath("offline").description("it tells if this event is offline evnet of not"),
+                                fieldWithPath("offline").description("it tells if this event is offline event of not"),
                                 fieldWithPath("eventStatus").description("it tells if this event is status"),
                                 fieldWithPath("_links.self.href").description("Link to self"),
                                 fieldWithPath("_links.query-events.href").description("Link to update event list"),
+                                fieldWithPath("_links.profile.href").description("Link to profile"),
                                 fieldWithPath("_links.update-events.href").description("Link to update existing events")
                         )
-                ))
-
-
-        ;
-
-
+                ));
     }
+
 
     @Test @DisplayName("입력값이 잘못된 이벤트 생성 경우의 테스트")
     void createEvent_Bad_Request_Wrong_Input() throws Exception {
@@ -176,17 +174,20 @@ class EventControllerTest {
                         .content(objectMapper.writeValueAsString(eventDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$[0].objectName").exists())
-                .andExpect(jsonPath("$[0].field").exists())
-                .andExpect(jsonPath("$[0].defaultMessage").exists())
-                .andExpect(jsonPath("$[0].rejectedValue").exists())
-        ;
+                .andExpect(jsonPath("errors[0].objectName").exists())
+                .andExpect(jsonPath("errors[0].field").exists())
+                .andExpect(jsonPath("errors[0].defaultMessage").exists())
+                .andExpect(jsonPath("errors[0].rejectedValue").exists())
+                .andExpect(jsonPath("_links.index").exists()
+
+
+                );
 
     }
 
 
     @Test @DisplayName("입력 값이 없는 이벤트 생성 테스트")
-    void ctrateEvent_Bad_Request_Empty_Input() throws Exception {
+    void createEvent_Bad_Request_Empty_Input() throws Exception {
         EventDto event = EventDto.builder().build();
 
         mockMvc.perform(post("/api/events/")

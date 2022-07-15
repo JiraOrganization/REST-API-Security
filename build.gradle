@@ -1,15 +1,18 @@
 plugins {
     id 'org.springframework.boot' version '2.7.1'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'org.asciidoctor.convert' version '1.5.8'
+    //id 'org.asciidoctor.convert' version '1.5.8'
+    id 'org.asciidoctor.jvm.convert' version "3.3.2"
     id 'java'
 }
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
+sourceCompatibility = 17
+targetCompatibility = 17
 
 configurations {
+    asciidoctorExt
     compileOnly {
         extendsFrom annotationProcessor
     }
@@ -20,8 +23,12 @@ repositories {
 }
 
 ext {
-    set('snippetsDir', file("build/generated-snippets"))
+    set('docsDir', file("src/main/docs/asciidoc"))
+    snippetsDir = file("${buildDir}/generated-snippets")
+    set('outputDocsDir', file("${projectDir}/resources/static/docs"))
+
 }
+
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -36,20 +43,23 @@ dependencies {
     // https://mvnrepository.com/artifact/org.modelmapper/modelmapper
     implementation 'org.modelmapper:modelmapper:3.1.0'
 
-
-
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
-
-
+    asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 }
-
-tasks.named('test') {
+test {
     outputs.dir snippetsDir
     useJUnitPlatform()
+    finalizedBy 'asciidoctor'
 }
 
-tasks.named('asciidoctor') {
+asciidoctor {
+    configurations 'asciidoctorExt'
     inputs.dir snippetsDir
     dependsOn test
+    outputDir file('src/main/resources/static/docs')
+    //outputDir outputDocsDir
 }
+
+
+
