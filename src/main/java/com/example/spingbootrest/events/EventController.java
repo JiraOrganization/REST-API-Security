@@ -84,10 +84,37 @@ public class EventController {
         EventModel eventModel =  new EventModel(optionalEvent.get());
         eventModel.add(Link.of("/docs/index.html#resources-events-get").withRel("profile"));
         return ResponseEntity.ok(eventModel);
-
-
-
     }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity updateEvent(@PathVariable Integer id,
+                                      @RequestBody @Valid EventDto eventDto,
+                                      Errors errors){
+
+        if (errors.hasErrors())
+            return badRequest(errors);
+
+        eventValidator.validate(eventDto, errors);
+        if (errors.hasErrors())
+            return badRequest(errors);
+
+        Optional<Event> optionalEvent = this.eventRepository.findById(id);
+        if (optionalEvent.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        Event exsitingEvent = optionalEvent.get();
+
+        // 입력 값을
+        this.modelMapper.map(eventDto, exsitingEvent);
+        Event save = this.eventRepository.save(exsitingEvent);
+
+        EventModel eventModel = new EventModel(save);
+        eventModel.add(Link.of("/docs/index.html#resources-events-update").withRel("profile"));
+
+        return ResponseEntity.ok(eventModel);
+    }
+
 
     private ResponseEntity badRequest(Errors errors) {
         return ResponseEntity.badRequest().body(new ErrorsModel(errors));
