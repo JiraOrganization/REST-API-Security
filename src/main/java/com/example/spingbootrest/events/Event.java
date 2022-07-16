@@ -1,11 +1,13 @@
 package com.example.spingbootrest.events;
 
+import com.example.spingbootrest.accounts.Account;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.time.LocalDateTime;
 
 /**
@@ -37,9 +39,11 @@ public class Event extends RepresentationModel<Event> {
     @Builder.Default
     private EventStatus eventStatus = EventStatus.DRAFT;
 
+    @ManyToOne
+    private Account manager;
+
     public void update(){
         this.free = this.basePrice == 0 && this.maxPrice == 0;
-
         this.offline = this.location != null && !this.location.isBlank();
     }
 
