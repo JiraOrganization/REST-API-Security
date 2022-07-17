@@ -107,6 +107,7 @@ class EventControllerTest extends BaseControllerTest {
                                 fieldWithPath("free").description("it tells if this event is free of not"),
                                 fieldWithPath("offline").description("it tells if this event is offline event of not"),
                                 fieldWithPath("eventStatus").description("it tells if this event is status"),
+                                fieldWithPath("manager").description("it tells if this User is Auth Level"),
                                 fieldWithPath("_links.self.href").description("Link to self"),
                                 fieldWithPath("_links.query-events.href").description("Link to update event list"),
                                 fieldWithPath("_links.profile.href").description("Link to profile"),
