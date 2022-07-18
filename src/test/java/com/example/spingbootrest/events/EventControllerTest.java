@@ -1,5 +1,6 @@
 package com.example.spingbootrest.events;
 
+import com.example.spingbootrest.common.AppProperties;
 import com.example.spingbootrest.common.BaseControllerTest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +26,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class EventControllerTest extends BaseControllerTest {
+
+    @Autowired
+    AppProperties appProperties;
 
     @Autowired
     EventRepository eventRepository;
@@ -254,7 +258,7 @@ class EventControllerTest extends BaseControllerTest {
     @DisplayName("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
     void queryEvents() throws Exception {
         //Given
-        IntStream.range(0,30).forEach(i -> this.generateEvent(i));
+        IntStream.range(0,30).forEach(this::generateEvent);
         //When
         this.mockMvc.perform(get("/api/events")
                         .param("page", "1")
