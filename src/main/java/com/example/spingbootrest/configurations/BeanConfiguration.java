@@ -3,6 +3,7 @@ package com.example.spingbootrest.configurations;
 import com.example.spingbootrest.accounts.Account;
 import com.example.spingbootrest.accounts.AccountRole;
 import com.example.spingbootrest.accounts.AccountService;
+import com.example.spingbootrest.common.AppProperties;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -34,15 +35,25 @@ public class BeanConfiguration {
             @Autowired
             AccountService accountService;
 
+            @Autowired
+            AppProperties appProperties;
+
             @Override
-            public void run(ApplicationArguments args) throws Exception {
+            public void run(ApplicationArguments args) {
                 System.out.println("ApplicationRunner");
-                Account account = Account.builder()
-                        .email("admin")
-                        .password("1234")
+                Account admin = Account.builder()
+                        .email(appProperties.getAdminUsername())
+                        .password(appProperties.getAdminPassword())
                         .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                         .build();
-                accountService.saveAccount(account);
+                accountService.saveAccount(admin);
+
+                Account user = Account.builder()
+                        .email(appProperties.getUserUsername())
+                        .password(appProperties.getUserPassword())
+                        .roles(Set.of(AccountRole.USER))
+                        .build();
+                accountService.saveAccount(user);
 
             }
         };
