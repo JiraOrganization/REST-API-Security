@@ -59,4 +59,7 @@ class AuthServerConfigurationTest extends BaseControllerTest {
         };
     }
 
+
+
+
 }
