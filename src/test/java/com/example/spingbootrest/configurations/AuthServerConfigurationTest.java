@@ -31,6 +31,8 @@ class AuthServerConfigurationTest extends BaseControllerTest {
         String clientSecret = appProperties.getClientSecret();
         this.mockMvc.perform(post("/oauth2/token")
                 .with(httpBasic(clientId, clientSecret))
+                .param("username", userName)
+                .param("password", appProperties.getAdminPassword())
                 .param("grant_type", "client_credentials"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -53,8 +55,8 @@ class AuthServerConfigurationTest extends BaseControllerTest {
 
     private static Object[] paramsForTestClientInfo(){
         return new Object[]{
-                new Object[] {"myApp", "myAppSecret", 200},
-                new Object[] {"wrongApp", "myAppSecret", 401},
+                new Object[] {"myApp", "pass", 200},
+                new Object[] {"wrongApp", "pass", 401},
                 new Object[] {"myApp", "wrongAppSecret", 401},
         };
     }

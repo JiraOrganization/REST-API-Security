@@ -23,6 +23,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @SpringBootTest
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 @ActiveProfiles("test")
+//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Disabled
 public class BaseControllerTest {
     @Autowired
