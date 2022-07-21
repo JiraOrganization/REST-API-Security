@@ -108,7 +108,7 @@ Spring Rest Docs
     
     ### [Request fields]
     
-    | name | Type | Description |
+| name | Type | Description |
 | --- | --- | --- |
 | description | String | description of new event |
 | beginEnrollmentDateTime | String | date time of beginEnrollmentDateTime |
