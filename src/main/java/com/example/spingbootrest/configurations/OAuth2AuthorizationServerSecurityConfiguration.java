@@ -17,6 +17,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -27,6 +30,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.config.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.config.ProviderSettings;
 import org.springframework.security.oauth2.server.authorization.config.TokenSettings;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
@@ -46,6 +50,8 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.UUID;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 public class OAuth2AuthorizationServerSecurityConfiguration {
@@ -62,12 +68,15 @@ public class OAuth2AuthorizationServerSecurityConfiguration {
         //return http.formLogin(Customizer.withDefaults()).build();
 
         http
+                .httpBasic(withDefaults())
                 // Redirect to the login page when not authenticated from the
                 // authorization endpoint
                 .exceptionHandling(/*(exceptions) -> exceptions
                         .authenticationEntryPoint(
                                 new LoginUrlAuthenticationEntryPoint("/login"))*/
-                );
+                )
+
+        ;
 
       /*  DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
         resolver.setAllowFormEncodedBodyParameter(true);
@@ -132,12 +141,26 @@ public class OAuth2AuthorizationServerSecurityConfiguration {
 
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
+
+        RegisteredClient registeredClient_Post = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId(appProperties.getClientId())
+                .clientSecret("{noop}"+appProperties.getClientSecret())
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri("http://127.0.0.1:8080/debug")
+                
+                .scope("read")
+                .scope("wirite")
+                .build();
+
+
         RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId(appProperties.getClientId())
                 .clientSecret("{noop}"+appProperties.getClientSecret())
                 //.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationGrantType(AuthorizationGrantType.PASSWORD)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri("http://127.0.0.1:8080/login/oauth2/code/users-client-oidc")
@@ -154,6 +177,17 @@ public class OAuth2AuthorizationServerSecurityConfiguration {
                 .build();
 
         return new InMemoryRegisteredClientRepository(registeredClient);
+    }
+
+    @Bean
+    public UserDetailsService users() {
+        UserDetails user = User.withDefaultPasswordEncoder()
+                .username("admin")
+                .password("1234")
+                .roles("ADMIN")
+                .build();
+
+        return new InMemoryUserDetailsManager(user);
     }
 
 

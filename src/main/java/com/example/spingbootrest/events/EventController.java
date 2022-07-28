@@ -11,6 +11,7 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
@@ -66,6 +67,8 @@ public class EventController {
 
     @GetMapping
     public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler, Authentication authentication){
+
+        Authentication authentication1 = SecurityContextHolder.getContext().getAuthentication();
         Page<Event> page = this.eventRepository.findAll(pageable);
         var pagedModel = assembler.toModel(page, e -> new EventModel(e));
         pagedModel.add(Link.of("/docs/index.html#resources-events-list").withRel("profile"));
