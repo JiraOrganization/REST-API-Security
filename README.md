@@ -7,6 +7,8 @@
 
 Self-Describtive Message와 HATEOAS(Hypermedia as the engine of application state)를 만족하는 REST API를 개발을 목적으로 한다.
 
+![전체 다이어그램](.README_images/e951337b.png)
+
 ## 구현 기술
 
 Spring HATATOS [**Hypermedia As The Engine Of Application State**]
@@ -40,7 +42,7 @@ API 호출 시 아래 예제와 같이 현재 상태에 따라서 자신과 변�
 같은 리스트 목록 요청 이지만 상태에 따라 자기 증명이 가능한 하이퍼 미디어 링크를 제공한다.
 
 ```json
-.....
+
 {
                 "id": 22,
                 "name": "Spring",
